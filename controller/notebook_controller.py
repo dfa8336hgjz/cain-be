@@ -45,7 +45,7 @@ class NotebookController:
                 
                 await cur.execute(query2, (notebook_id, user_id, title if title else "Untitled notebook"))
                 await connector.commit()
-                return
+                return notebook_id
         except Error as err:
             connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to create notebook: {err.msg}")

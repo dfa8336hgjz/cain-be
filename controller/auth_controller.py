@@ -72,12 +72,13 @@ class AuthController:
     async def save_token_to_blacklist(self, token: str, redis_client: RedisService = Depends(RedisService)):
         await redis_client.add_token_to_blacklist(token)
 
-def validate_token(http_authorization_credentials=Depends(reusable_oauth2)) -> str:
+def validate_token(http_authorization_credentials=Depends(reusable_oauth2)):
     try:
         token = http_authorization_credentials.credentials
         payload = jwt.decode(token, SECRET_KEY, algorithms=[SECURITY_ALGORITHM])
         if payload.get('exp') < datetime.now().timestamp():
             raise HTTPException(status_code=403, detail="Token expired")
+
         return payload.get('id')
     except(jwt.PyJWTError, ValidationError):
         raise HTTPException(

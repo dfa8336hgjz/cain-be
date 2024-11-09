@@ -53,3 +53,8 @@ async def logout(http_authorization_credentials=Depends(reusable_oauth2), contro
     auth_controller = controller.auth_controller
     await auth_controller.save_token_to_blacklist(token=http_authorization_credentials.credentials)
     return JSONResponse(content={'message': 'User logged out successfully'}, status_code=200)
+
+
+@auth_router.post("/check_token")
+async def check_token(user_id: str = Depends(validate_token)):
+    return JSONResponse(content={'message': 'Token is valid'}, status_code=200)

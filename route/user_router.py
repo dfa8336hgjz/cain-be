@@ -15,7 +15,7 @@ async def about_me(id: str = Depends(validate_token), controller: AppController 
     
 
 @user_router.get("/all_notebooks")
-async def get_all_notebooks(user_id: str = Depends(validate_token),controller: AppController = Depends(get_app_controller)):
+async def get_all_notebooks(user_id: str = Depends(validate_token), controller: AppController = Depends(get_app_controller)):
     notebook_controller = controller.notebook_controller
     notebooks = await notebook_controller.get_all_notebooks_by_user_id(user_id)
     return notebooks
