@@ -1,8 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from mysql.connector.aio import connect, MySQLConnectionAbstract
-
+import mysql.connector
+from mysql.connector.aio import MySQLConnectionAbstract, connect
 
 load_dotenv()
 
