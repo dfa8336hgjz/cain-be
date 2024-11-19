@@ -1,13 +1,12 @@
 import uvicorn
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from route.auth_router import auth_router
 from route.user_router import user_router
 from fastapi.middleware.cors import CORSMiddleware
 
-from controller.auth_controller import validate_token
 from route.notebook_router import notebook_router
 from route.message_router import message_router
-from route.document_router import document_router
+from route.file_router import file_router
 
 SECURITY_ALGORITHM = 'HS256'
 SECRET_KEY = '123456'
@@ -31,7 +30,7 @@ app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(notebook_router)
 app.include_router(message_router)
-app.include_router(document_router)
+app.include_router(file_router)
 
 if __name__ == '__main__':
     uvicorn.run(app, host='0.0.0.0', port=8000)

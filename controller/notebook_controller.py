@@ -1,15 +1,14 @@
-from typing import List
 import uuid
-from db.mysql_db import get_mysql_connection
+
 from mysql.connector import Error
 from fastapi import HTTPException
+from db.mysql_db import get_mysql_connection
 
 from schema.notebook_schema import BaseNotebook
 
 class NotebookController:
-    async def get_all_notebooks_by_user_id(self, user_id) -> List[BaseNotebook]:
+    async def get_all_notebooks_by_user_id(self, user_id) -> list[BaseNotebook]:
         connector = await get_mysql_connection()
-
         try:
             query = "SELECT * FROM notebook WHERE user_id = %s"
 
@@ -41,7 +40,7 @@ class NotebookController:
                 await cur.execute(query1, (title, user_id))
                 notebook = await cur.fetchone()
                 if notebook:
-                    raise HTTPException(status_code=401, detail="Notebook already exists")
+                    raise HTTPException(status_code=406, detail="Notebook already exists")
                 
                 await cur.execute(query2, (notebook_id, user_id, title if title else "Untitled notebook"))
                 await connector.commit()
@@ -123,3 +122,26 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to add message to history: {err.msg}")
+        
+    async def get_top_recent_notebooks_by_user_id(self, user_id) -> list[BaseNotebook]:
+        connector = await get_mysql_connection()
+
+        try:
+            query = "SELECT * FROM notebook WHERE user_id = %s ORDER BY last_access_at DESC LIMIT 4"
+
+            async with await connector.cursor() as cur:
+                await cur.execute(query, (user_id,))
+                rows = await cur.fetchall()
+                results = [
+                    BaseNotebook(
+                        notebook_id=row[0],
+                        user_id=row[1],
+                        title=row[2],
+                        created_at=row[3],
+                        last_access_at=row[4],
+                    )
+                    for row in rows
+                ]
+                return results
+        except Error as err:
+            raise HTTPException(status_code=400, detail=f"Failed to get notebooks: {err.msg} ")

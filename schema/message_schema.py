@@ -5,6 +5,6 @@ from pydantic import BaseModel
 
 class BaseMessage(BaseModel):
     message_id: str
-    created_at: datetime = datetime.now()
+    notebook_id: str
     content: Optional[str] = None
-    conversation_id: Optional[str] = None
+    created_at: datetime = datetime.now()

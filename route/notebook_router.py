@@ -16,6 +16,7 @@ async def create_notebook(title: str, user_id: str = Depends(validate_token), co
 async def get_notebook(notebook_id: str, user_id: str = Depends(validate_token), controller: AppController = Depends(get_app_controller)):
     notebook_controller = controller.notebook_controller
     notebook = await notebook_controller.get_notebook_by_id(notebook_id, user_id)
+    await notebook_controller.update_notebook_access_time(notebook_id, user_id)
     return notebook
     
 @notebook_router.delete("/{notebook_id}")

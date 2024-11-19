@@ -7,7 +7,6 @@ from weaviate.classes.init import Auth
 
 load_dotenv()
 
-
 @contextmanager
 def get_langchain_weaviate_vectorstore(embedding=None):
     client = weaviate.connect_to_weaviate_cloud(
