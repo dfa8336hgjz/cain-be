@@ -7,6 +7,9 @@ from db.mysql_db import get_mysql_connection
 from schema.notebook_schema import BaseNotebook
 
 class NotebookController:
+    def __init__(self, app_controller):
+        self.controller = app_controller
+        
     async def get_all_notebooks_by_user_id(self, user_id) -> list[BaseNotebook]:
         connector = await get_mysql_connection()
         try:
@@ -27,8 +30,10 @@ class NotebookController:
                 ]
                 return results
         except Error as err:
-            raise HTTPException(status_code=400, detail=f"Failed to get notebooks: {err.msg} ")
-        
+            raise HTTPException(status_code=400, detail=f"Failed to get notebooks: {err.msg}")
+        finally:
+            await connector.close()
+
     async def create_notebook_by_user_id(self, user_id, title):
         connector = await get_mysql_connection()
         notebook_id = f"notebook-{uuid.uuid4()}"
@@ -46,9 +51,11 @@ class NotebookController:
                 await connector.commit()
                 return notebook_id
         except Error as err:
-            connector.rollback()
+            await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to create notebook: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def delete_notebook_by_id(self, notebook_id, user_id):
         connector = await get_mysql_connection()
         try:
@@ -59,7 +66,9 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to delete notebook: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def get_notebook_by_id(self, notebook_id, user_id):
         connector = await get_mysql_connection()
         try:
@@ -77,7 +86,9 @@ class NotebookController:
                     )
         except Error as err:
             raise HTTPException(status_code=400, detail=f"Failed to get notebook: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def update_notebook_access_time(self, notebook_id, user_id):
         connector = await get_mysql_connection()
         try:
@@ -88,7 +99,9 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to update notebook access time: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def delete_message_history(self, notebook_id, user_id):
         connector = await get_mysql_connection()
         try:
@@ -105,12 +118,14 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to delete message history: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def add_message_to_history(self, notebook_id, user_id, message, is_from_user):
         connector = await get_mysql_connection()
         try:
             query1 = "SELECT notebook_id FROM notebook WHERE notebook_id = %s and user_id = %s"
-            query2 = "INSERT INTO messages (notebook_id, content, is_from_user) VALUES (%s, %s, %s, %s)"
+            query2 = "INSERT INTO messages (notebook_id, content, is_from_user) VALUES (%s, %s, %s)"
             async with await connector.cursor() as cur:
                 await cur.execute(query1, (notebook_id, user_id))
                 notebook = await cur.fetchone()
@@ -122,10 +137,11 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to add message to history: {err.msg}")
-        
+        finally:
+            await connector.close()
+
     async def get_top_recent_notebooks_by_user_id(self, user_id) -> list[BaseNotebook]:
         connector = await get_mysql_connection()
-
         try:
             query = "SELECT * FROM notebook WHERE user_id = %s ORDER BY last_access_at DESC LIMIT 4"
 
@@ -144,4 +160,6 @@ class NotebookController:
                 ]
                 return results
         except Error as err:
-            raise HTTPException(status_code=400, detail=f"Failed to get notebooks: {err.msg} ")
+            raise HTTPException(status_code=400, detail=f"Failed to get notebooks: {err.msg}")
+        finally:
+            await connector.close()

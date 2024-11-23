@@ -24,6 +24,9 @@ reusable_oauth2 = HTTPBearer(
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class AuthController:
+    def __init__(self, app_controller):
+        self.controller = app_controller
+        
     async def verify_password(self, username, password) -> bool:
         try:
             connector = await get_mysql_connection()
@@ -37,6 +40,8 @@ class AuthController:
                 return None
         except Error as err:
             raise HTTPException(status_code=400, detail=err.msg)
+        finally:
+            await connector.close()
     
     def generate_token(self, user_id: str) -> str:
         expire = datetime.now() + timedelta(
@@ -68,6 +73,8 @@ class AuthController:
         except mysql.connector.Error as err:
             connector.rollback()
             raise HTTPException(status_code=400, detail=err.msg)
+        finally:
+            await connector.close()
 
     async def save_token_to_blacklist(self, token: str, redis_client: RedisService = Depends(RedisService)):
         await redis_client.add_token_to_blacklist(token)

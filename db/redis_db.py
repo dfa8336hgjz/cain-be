@@ -3,7 +3,6 @@ from typing import Generator
 from redis import Redis
 import os
 from dotenv import load_dotenv
-from test import redis_client
 
 load_dotenv()
 

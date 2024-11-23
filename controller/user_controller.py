@@ -4,8 +4,8 @@ from fastapi import HTTPException
 from schema.user_schema import BaseUser
 
 class UserController:
-    def __init__(self):
-        pass
+    def __init__(self, app_controller):
+        self.controller = app_controller
 
     async def get_user_info(self, user_id):
         connector = await get_mysql_connection()
@@ -26,6 +26,8 @@ class UserController:
 
         except Error as err:
             raise HTTPException(status_code=400, detail=f"Failed to get user: {err.msg}")
+        finally:
+            await connector.close()
 
     async def delete_user_by_id(self, user_id):
         connector = await get_mysql_connection()
@@ -37,3 +39,5 @@ class UserController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to delete user: {err.msg}")
+        finally:
+            await connector.close()

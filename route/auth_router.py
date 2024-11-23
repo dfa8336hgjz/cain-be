@@ -3,13 +3,13 @@ from fastapi.responses import JSONResponse
 
 from controller.auth_controller import validate_token
 from schema.request.request_schema import LoginRequest, SignupRequest
-from controller.app_controller import AppController, get_app_controller
+from controller.app_controller import controller
 from controller.auth_controller import reusable_oauth2
 
 auth_router = APIRouter(tags=["Authentication"], prefix="/auth")
 
 @auth_router.post("/login")
-async def login(request_data: LoginRequest, controller: AppController = Depends(get_app_controller)):
+async def login(request_data: LoginRequest):
     """
     **Log in api for user.**
 
@@ -29,7 +29,7 @@ async def login(request_data: LoginRequest, controller: AppController = Depends(
         raise HTTPException(status_code=401, detail="Wrong username or password")
     
 @auth_router.post("/signup")
-async def signup(request: SignupRequest, controller: AppController = Depends(get_app_controller)):
+async def signup(request: SignupRequest):
     """
     **Sign up api for user.**
 
@@ -49,7 +49,7 @@ async def signup(request: SignupRequest, controller: AppController = Depends(get
     
 
 @auth_router.get("/logout")
-async def logout(http_authorization_credentials=Depends(reusable_oauth2), controller: AppController = Depends(get_app_controller)):
+async def logout(http_authorization_credentials=Depends(reusable_oauth2)):
     auth_controller = controller.auth_controller
     await auth_controller.save_token_to_blacklist(token=http_authorization_credentials.credentials)
     return JSONResponse(content={'message': 'User logged out successfully'}, status_code=200)

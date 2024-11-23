@@ -1,4 +1,3 @@
-
 from langchain.document_loaders import Docx2txtLoader
 
 class DocxReader:
