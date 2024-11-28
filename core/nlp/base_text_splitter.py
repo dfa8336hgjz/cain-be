@@ -35,9 +35,6 @@ class BaseTextSplitter:
     async def save(self):
         if self.chunks:
             try:
-                await self.controller.chunk_controller.add_multiple_chunks(
-                    self.chunks, self.sql_connector
-                )
                 await self.controller.chunk_controller.add_to_vectorstores(self.chunks)
             except Error as e:
                 logging.error(str(e))

@@ -32,9 +32,13 @@ class PdfTextSplitter(BaseTextSplitter):
             chunk_size=chunk_size, chunk_overlap=overlap
         )
         blob = Blob.from_path(self.filepath)
-        docs = parser.lazy_parse(blob)
+        docs = list(parser.lazy_parse(blob))
+        docs[0].page_content = "This is the start of file " + self.filepath +":\n" + docs[0].page_content 
+        docs[-1].page_content += "This is the end of file " + self.filepath + ".\n"
+
         splits = splitter.split_documents(docs)
         results = []
+
         for i, split in enumerate(splits):
             chunk_id = "chunk-" + str(uuid.uuid4())
             chunk = BaseChunk(
@@ -43,4 +47,5 @@ class PdfTextSplitter(BaseTextSplitter):
                 file_id=self.file_id,
             )
             results.append(chunk)
+        
         return results

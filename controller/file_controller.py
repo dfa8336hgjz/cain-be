@@ -1,5 +1,6 @@
 
 import os
+from urllib.parse import quote_plus
 import uuid
 import aiofiles
 import asyncio
@@ -10,8 +11,6 @@ from core.nlp.docx_text_splitter import WordTextSplitter
 from core.nlp.pdf_text_splitter import PdfTextSplitter
 from db.mysql_db import get_mysql_connection
 from mysql.connector.aio import MySQLConnectionAbstract
-from schema.chunk_schema import BaseChunk
-from schema.file_schema import BaseFile
 
 DRIVE_FOLDER = os.getenv("DRIVE_FOLDER")
 
@@ -22,13 +21,11 @@ class FileController:
     async def save_file_to_server(self, file: UploadFile, notebook_id: str):
         # Save file to disk
         file_id = "doc-" + str(uuid.uuid4())
-        file_folder = os.path.join(DRIVE_FOLDER, notebook_id, file_id)
-
+        file_folder = os.path.join(DRIVE_FOLDER, notebook_id, )
         if not os.path.exists(file_folder):
             os.makedirs(file_folder)  # Ensure the directory is created
-
+        file_path = os.path.join(file_folder, file.filename)
         ext = file.filename.split(".")[-1]
-        file_path = os.path.join(file_folder, "raw." + ext)
 
         if ext not in ["pdf", "docx"]:
             raise HTTPException(status_code=400, detail="Invalid file type")

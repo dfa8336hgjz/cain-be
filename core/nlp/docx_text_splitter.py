@@ -29,6 +29,9 @@ class WordTextSplitter(BaseTextSplitter):
             full_text.append(para.text)
 
         text_content = "\n".join(full_text)
+        text_content = "This is the start of file " + self.filepath +":\n" \
+            + text_content + "\nThis is the end of file " + self.filepath + ".\n"
+        
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size, chunk_overlap=overlap
         )

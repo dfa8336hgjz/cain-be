@@ -24,23 +24,6 @@ use cain_dtb;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `chunk`
---
-
-DROP TABLE IF EXISTS `chunk`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `chunk` (
-  `chunk_id` varchar(100) NOT NULL,
-  `content` text NOT NULL,
-  `file_id` varchar(100) NOT NULL,
-  PRIMARY KEY (`chunk_id`),
-  KEY `fk_chunk_file_id` (`file_id`),
-  CONSTRAINT `fk_chunk_file_id` FOREIGN KEY (`file_id`) REFERENCES `file` (`file_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `file`
 --
 
@@ -53,8 +36,6 @@ CREATE TABLE `file` (
   `file_name` varchar(255) NOT NULL,
   `extensions` enum('pdf','docx') NOT NULL,
   `upload_at` timestamp DEFAULT current_timestamp,
-  `summary` text,
-  `text_content` longtext,
   `file_path` varchar(255) NOT NULL,
   PRIMARY KEY (`file_id`),
   KEY `fk_file_notebook_id` (`notebook_id`),
@@ -74,30 +55,9 @@ CREATE TABLE `messages` (
   `notebook_id` varchar(100) NOT NULL,
   `content` text NOT NULL,
   `created_at` timestamp DEFAULT current_timestamp,
-  `is_from_user` tinyint(1) NOT NULL,
   PRIMARY KEY (`message_id`),
   KEY `fk_message_log_notebook_id` (`notebook_id`),
   CONSTRAINT `fk_message_log_notebook_id` FOREIGN KEY (`notebook_id`) REFERENCES `notebook` (`notebook_id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `note`
---
-
-DROP TABLE IF EXISTS `note`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `note` (
-  `note_id` varchar(100) NOT NULL,
-  `notebook_id` varchar(100) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `content` text NOT NULL,
-  `created_at` timestamp DEFAULT current_timestamp,
-  `chunks_id` text,
-  PRIMARY KEY (`note_id`),
-  KEY `fk_note_notebook_id` (`notebook_id`),
-  CONSTRAINT `fk_note_notebook_id` FOREIGN KEY (`notebook_id`) REFERENCES `notebook` (`notebook_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
