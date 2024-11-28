@@ -1,18 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.responses import JSONResponse
 from controller.auth_controller import validate_token
 from controller.app_controller import controller
+from schema.request.request_schema import MessageRequest
 
 message_router = APIRouter(tags=["Message"], prefix="/message")
 
 @message_router.get("/{notebook_id}")
 async def get_messages():
     return "Hello World"
-
-@message_router.post("/send_message")
-async def send_message():
-    return "Hello World"
-
 
 @message_router.delete("/{notebook_id}/all_messages")
 async def delete_all_messages(notebook_id: str, user_id: str = Depends(validate_token)):

@@ -13,13 +13,9 @@ def get_langchain_weaviate_vectorstore(embedding=None):
         cluster_url=os.getenv("WEAVIATE_URL"),
         auth_credentials=Auth.api_key(os.getenv("WEAVIATE_API_KEY"))
     )
-    if embedding:
-        vectorstore = WeaviateVectorStore(client, os.getenv("WEAVIATE_DOCUMENT_DATABASE"),
-                                          os.getenv("WEAVIATE_DOCUMENT_TEXT_KEY"),
-                                          embedding=embedding)
-    else:
-        vectorstore = WeaviateVectorStore(client, os.getenv("WEAVIATE_DOCUMENT_DATABASE"),
-                                          os.getenv("WEAVIATE_DOCUMENT_TEXT_KEY"))
+    vectorstore = WeaviateVectorStore(client, os.getenv("WEAVIATE_DOCUMENT_DATABASE"),
+                                        os.getenv("WEAVIATE_DOCUMENT_TEXT_KEY"),
+                                        embedding=embedding)
     try:
         yield vectorstore
     finally:

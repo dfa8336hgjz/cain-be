@@ -38,7 +38,7 @@ class RagAgent:
         )
         
         system_prompt = (
-            "You are an assistant for question-answering tasks. "
+            "You are an assistant for question-answering tasks named CAIN."
             "Use the following pieces of retrieved context to answer "
             "the question. If you don't know the answer, say that you "
             "don't know. Use three sentences maximum and keep the "
@@ -56,22 +56,9 @@ class RagAgent:
         self.question_answer_chain = create_stuff_documents_chain(self.llm, prompt)
 
     def parse_rag_chain(self, vectorstore):
-        """
-        Create a RAG chain using the given vectorstore. The RAG chain is a
-        retrieval-based chain that takes a query and a chat history as input.
-        It first uses the vectorstore to retrieve the top N files that
-        match the query. Then it uses the contextualize_q_prompt to generate
-        a standalone question from the query and the chat history. Finally it
-        uses the question_answer_chain to answer the generated question based
-        on the retrieved files.
-
-        Args:
-            vectorstore (LangchainVectorStore): The vectorstore to use for retrieval
-
-        Returns:
-            RAGChain: The RAG chain that can be used to answer questions
-        """
+        print(self.file_ids)
         filter_file = Filter.by_property("file_id").contains_any(self.file_ids)
+        print(filter_file)
         retriever = vectorstore.as_retriever(
             search_kwargs={'filters': filter_file}
         )
@@ -83,40 +70,15 @@ class RagAgent:
 
 
     def get_answer(self, query: str, chat_history: list[BaseMessage]):
-        """
-        This function takes a query and a chat history as input and returns an
-        iterator over the answer chunks. The function first creates a RAG
-        chain using the given vectorstore. The RAG chain is a retrieval-based
-        chain that takes a query and a chat history as input. It first uses
-        the vectorstore to retrieve the top N files that match the query.
-        Then it uses the contextualize_q_prompt to generate a standalone
-        question from the query and the chat history. Finally it uses the
-        question_answer_chain to answer the generated question based on the
-        retrieved files.
-
-        The function then streams the answer chunks from the RAG chain. The
-        chunks are yielded one by one.
-
-        Args:
-            query (str): The query to answer
-            chat_history (list[BaseMessage]): The chat history
-
-        Yields:
-            str: The answer chunks
-        """
         with get_langchain_weaviate_vectorstore(get_embedding()) as vectorstore:
             rag_chain = self.parse_rag_chain(vectorstore)
             messages = []
             for chat in chat_history:
-                if chat.message_id.startswith("u"):
+                if chat.message_id.startswith("a"):
                     messages.append(HumanMessage(content=chat.content))
                 elif chat.message_id.startswith("b"):
                     messages.append(AIMessage(content=chat.content))
             
             result = rag_chain.invoke({"input": query, "chat_history": messages})
-            return result
-            # for chunk in rag_chain.stream({
-            #     "input": query,
-            #     "chat_history": messages,
-            # }):
-            #     yield chunk
+            
+            return result["answer"]
