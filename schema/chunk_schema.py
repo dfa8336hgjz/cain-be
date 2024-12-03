@@ -8,3 +8,4 @@ class BaseChunk(BaseModel):
     chunk_id: str
     content: str
     file_id: str
+    notebook_id: str

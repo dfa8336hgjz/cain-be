@@ -41,7 +41,7 @@ class RagAgent:
             "You are an assistant for question-answering tasks named CAIN."
             "Use the following pieces of retrieved context to answer "
             "the question. If you don't know the answer, say that you "
-            "don't know. Use three sentences maximum and keep the "
+            "don't know. Use five sentences maximum and keep the "
             "answer concise. Do not include any special characters in your answer."
             "\n\n"
             "{context}"
@@ -56,9 +56,7 @@ class RagAgent:
         self.question_answer_chain = create_stuff_documents_chain(self.llm, prompt)
 
     def parse_rag_chain(self, vectorstore):
-        print(self.file_ids)
         filter_file = Filter.by_property("file_id").contains_any(self.file_ids)
-        print(filter_file)
         retriever = vectorstore.as_retriever(
             search_kwargs={'filters': filter_file}
         )

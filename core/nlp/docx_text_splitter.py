@@ -44,6 +44,7 @@ class WordTextSplitter(BaseTextSplitter):
                 chunk_id=chunk_id,
                 content=split,
                 file_id=self.file_id,
+                notebook_id=self.notebook_id
             )
             results.append(chunk)
         return results

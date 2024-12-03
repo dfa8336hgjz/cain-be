@@ -5,7 +5,6 @@ from route.user_router import user_router
 from fastapi.middleware.cors import CORSMiddleware
 
 from route.notebook_router import notebook_router
-from route.message_router import message_router
 from route.file_router import file_router
 
 SECURITY_ALGORITHM = 'HS256'
@@ -16,11 +15,9 @@ app = FastAPI(
     description='by PMC'
 )
 
-origins = ["http://localhost:3000"]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*","http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,7 +26,6 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(user_router)
 app.include_router(notebook_router)
-app.include_router(message_router)
 app.include_router(file_router)
 
 if __name__ == '__main__':

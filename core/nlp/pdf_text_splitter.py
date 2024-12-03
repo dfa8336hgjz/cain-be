@@ -45,6 +45,7 @@ class PdfTextSplitter(BaseTextSplitter):
                 chunk_id=chunk_id,
                 content=split.page_content,
                 file_id=self.file_id,
+                notebook_id=self.notebook_id
             )
             results.append(chunk)
         

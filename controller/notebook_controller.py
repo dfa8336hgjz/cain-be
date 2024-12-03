@@ -66,6 +66,8 @@ class NotebookController:
             async with await connector.cursor() as cur:
                 await cur.execute(query, (notebook_id, user_id))
                 await connector.commit()
+
+            self.controller.chunk_controller.delete_from_vectorstores_by_notebook_id(notebook_id)
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to delete notebook: {err.msg}")
@@ -102,6 +104,19 @@ class NotebookController:
         except Error as err:
             await connector.rollback()
             raise HTTPException(status_code=400, detail=f"Failed to update notebook access time: {err.msg}")
+        finally:
+            await connector.close()
+
+    async def update_notebook_title(self, notebook_id: str, user_id: str, title: str):
+        connector = await get_mysql_connection()
+        try:
+            query = "UPDATE notebook SET title = %s WHERE notebook_id = %s and user_id = %s"
+            async with await connector.cursor() as cur:
+                await cur.execute(query, (title, notebook_id, user_id))
+                await connector.commit()
+        except Error as err:
+            await connector.rollback()
+            raise HTTPException(status_code=400, detail=f"Failed to update notebook title: {err.msg}")
         finally:
             await connector.close()
 
@@ -147,7 +162,7 @@ class NotebookController:
     async def get_top_recent_notebooks_by_user_id(self, user_id) -> list[BaseNotebook]:
         connector = await get_mysql_connection()
         try:
-            query = "SELECT * FROM notebook WHERE user_id = %s ORDER BY last_access_at DESC LIMIT 4"
+            query = "SELECT * FROM notebook WHERE user_id = %s ORDER BY last_access_at desc LIMIT 4"
 
             async with await connector.cursor() as cur:
                 await cur.execute(query, (user_id,))
