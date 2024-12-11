@@ -12,6 +12,7 @@ from fastapi.security import HTTPBearer
 from pydantic import ValidationError
 import jwt
 from db.redis_db import RedisService
+from schema.login_response_schema import BaseUserInfo
 
 
 SECURITY_ALGORITHM = 'HS256'
@@ -27,7 +28,7 @@ class AuthController:
     def __init__(self, app_controller):
         self.controller = app_controller
         
-    async def verify_password(self, username, password) -> bool:
+    async def verify_password(self, username, password) -> BaseUserInfo:
         try:
             connector = await get_mysql_connection()
 
@@ -36,7 +37,12 @@ class AuthController:
                 await cur.execute(query, (username,))
                 user = await cur.fetchone()
                 if user and pwd_context.verify(password, user[4]):
-                    return user[0]
+                    return BaseUserInfo(
+                        user_id=user[0],
+                        username=user[1],
+                        email=user[2],
+                        fullname=user[3]
+                    )
                 return None
         except Error as err:
             raise HTTPException(status_code=400, detail=err.msg)

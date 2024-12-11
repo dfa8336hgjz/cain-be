@@ -12,10 +12,11 @@ auth_router = APIRouter(tags=["Authentication"], prefix="/auth")
 async def login(request_data: LoginRequest):
     try:
         auth = controller.auth_controller
-        user_id = await auth.verify_password(username=request_data.username, password=request_data.password)
-        if user_id:
-            token = auth.generate_token(user_id)
-            return token
+        user = await auth.verify_password(username=request_data.username, password=request_data.password)
+        if user:
+            token = auth.generate_token(user.user_id)
+            user.token = token
+            return user
         raise HTTPException(status_code=400, detail="Invalid username or password")
     except Exception as e:
         raise e
